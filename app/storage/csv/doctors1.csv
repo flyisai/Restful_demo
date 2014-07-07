@@ -1,0 +1,3 @@
+id ,name ,address ,city ,province ,phone ,email,license number,speciality id ,education,Experience,languages
+1,John Example obama,"21 Queen Street, Room 201 ",,North Sumatra,90821309823,john@example.com,91823784389412,1;2 ,type; organization_name |type; organization_name,start_year; finish_year; organization | start_year; finish_year; organization,1;3;5
+2,John Example obama,"21 Queen Street, Room 201 ",,North Sumatra,90821309823,john+1@example.com,91823784389412,1;2 ,type; organization_name |type; organization_name,start_year; finish_year; organization | start_year; finish_year; organization,1;3;5

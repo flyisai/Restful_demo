@@ -1,0 +1,8 @@
+default:
+  paths:
+    features: %behat.paths.base%/app/tests/acceptance
+    bootstrap: %behat.paths.base%/app/tests/acceptance
+  extensions:
+    Behat\MinkExtension\Extension:
+      goutte: ~
+      selenium2: ~

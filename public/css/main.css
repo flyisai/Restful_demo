@@ -1,0 +1,50 @@
+body,h1,h2,h3,h4,h5,h6,hr,p,blockquote,dl,dt,dd,ul,ol,li,pre,form,fieldset,legend,button,input,textarea,th,td,img{
+	border:medium none;
+	margin:0;
+	padding:0;
+}
+
+h1,h2,h3,h4,h5,h6{
+	-webkit-margin-before:0em;
+	-webkit-margin-after:0em;
+
+}
+body{background:black;overflow-x:hidden}
+em{font-style:normal}
+ul,ol{list-style:none}
+a{text-decoration:none;color:#9ac2d4}
+img{border:none; vertical-align:middle}
+table{border-collapse:collapse; border-spacing:0}
+.clearfix:before,
+.clearfix:after {
+  display: table;
+  content: " ";
+}
+.clearfix:after {
+  clear: both;
+}
+.align-center {
+    text-align: center;
+}
+.error {
+    color: red !important;
+}
+.ui-input-search input {
+    padding-left: 2em;
+}
+.doctor-img-left {
+	float: left;
+	margin-top: 10px;
+}
+.doctor-info {
+	text-align: left;
+	padding-left: 120px;
+	white-space: normal;
+	font-weight:normal;
+}
+.doctor-content {
+    margin: 20px;
+}
+.wrap {
+    white-space : normal !important;
+}
