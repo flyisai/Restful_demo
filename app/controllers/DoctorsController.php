@@ -15,8 +15,7 @@ class DoctorsController extends BaseController {
     |
     */
 
-    public function searchDoctors()
-    {
+    public function searchDoctors() {
         if (Request::getMethod() === "GET") {        
             // Get list of doctors
             $doctors = App::make('Doctors\Doctor');
@@ -47,65 +46,67 @@ class DoctorsController extends BaseController {
     }
 
 
-    public function show($id)
-    {
+    public function show($id) {
+        $owner = false;
         $doctor = \App\Models\Doctor::find($id);
-        return View::make('doctors.show')-> with('doctor', $doctor);
+        $user = Sentry::getUser();
+        if ($user) {
+            $userRatingOfDoc = $user->doctorRatings()->first();
+        };
+        if (empty($userRatingOfDoc)) {
+            $userRatingOfDoc = \App::make('\App\Models\DoctorRating');
+        }
+        if (empty($doctor)) {
+            \App::abort('404');
+        }
+        $ratingModel = \App::make('\App\Models\DoctorRating');
+        $ratingCalculator = \App::make('RatingCalculator', array(
+            'ratableEntity' => $doctor,
+            'ratingModel' => $ratingModel
+        ));
+        $ratableFields = array(
+            "Friendliness" => "friendliness",
+            "Clarity" => "clarity",
+            "Trustworthiness" => "trustworthiness",
+            "Personal Hygiene" => "personal_hygiene",
+            "Listening" => "listening",
+            "Wait Time" => "wait_time",
+            "Accessibility" => "accessibility"
+        );
+        if(Sentry::check()) {
+            if ($doctor->user_id == Sentry::getUser()->id){
+                $owner = true;
+            }
+
+        }
+        return \View::make('doctors.show')
+            ->with('doctor', $doctor)
+            ->with('ratingAvgsByField', $ratingCalculator->getAverageRatingByField())
+            ->with('combinedAvgRating', $ratingCalculator->getCombinedAverage())
+            ->with('ratableFields', $ratableFields)
+            ->with('userRatingOfDoc', $userRatingOfDoc)
+            ->with('ratingCount', $ratingCalculator->getRatingCount())
+            ->with('user', $owner);
     }
     
-    public function create()
-    {    
+    public function create() {
         if (Request::getMethod() === "GET") {
-            $user = Sentry::getUser(); 
-            if(isset($user->id))
-            $userid=$user->id; 
-            else {
+            $user = Sentry::getUser();
+            if(isset($user->id)) {
+                $userid=$user->id;
+            } else {
                 return Redirect::route('login');        
             }
-            
-            //$doctorinfoarr=Doctor::where('user_id', $userid)->get();
-            $doctorinfo=array(); 
-            
             return View::make('doctors.profile')                  
-                ->with("user_id",$userid)           
-                ->with("id",isset($doctorinfo->id)?$doctorinfo->id:"")           
-                ->with("name",isset($doctorinfo->name)?$doctorinfo->name:"")
-                ->with("speciality",isset($doctorinfo->speciality)?$doctorinfo->speciality:"")
-                ->with("street_address",isset($doctorinfo->street_address)?$doctorinfo->street_address:"")
-                ->with("cityid",isset($doctorinfo->cityid)?$doctorinfo->cityid:"")
-                ->with("postcode",isset($doctorinfo->postcode)?$doctorinfo->postcode:"")
-                ->with("provinceid",isset($doctorinfo->provinceid)?$doctorinfo->provinceid:"")
-                ->with("country",isset($doctorinfo->country)?$doctorinfo->country:"")
-                ->with("phone",isset($doctorinfo->phone)?$doctorinfo->phone:"")
-                ->with("email",isset($doctorinfo->email)?$doctorinfo->email:"")
-                ->with("license_number",isset($doctorinfo->license_number)?$doctorinfo->license_number:"")
+                ->with("user_id",$userid)
                 ->with("route","doctorstore");                          
-        } 
-        /**
-        elseif (Request::getMethod() === "POST")         
-        {          
-            $Doctormodel = new Doctor();     
-            $input = Input::get();                
-            if(!empty($input['id'])) 
-            {
-		$Doctormodel = Doctor::find($input['id']);
-	    }            
-            foreach($input as $key=>$value)
-            {             
-                $Doctormodel->$key = $value;
-            }
-                            
-	    $Doctormodel->save(); 
-                  
-        }     **/   
-        
+        }
     }
     /**
      * 
      * @return type
      */
-    public function store()
-    {    
+    public function store() {
         $Doctormodel = new Doctor();     
         $input = Input::get();                
         
@@ -121,28 +122,25 @@ class DoctorsController extends BaseController {
                 'postcode' => 'required',
                 'country' => 'required|alpha',
                 'phone' => 'required|numeric',
-                'email' => 'required|email',
+                'email' => 'required|email|unique:doctors,email',
                 'license_number' => 'required',
         );
 
         $messages = array(
                 'required' => "The [:attribute]  is required.",
                 'alpha' => "The :attribute  only is  letters allowed.",
-                'unique' => "The :attribute  already exist in database.",
+                'unique' => "The :attribute already exist in database.",
                 'email' => "The :attribute  is incorrect email address.",	
                 'numeric'=>"The :attribute  only is number.",
         );
         $validation = Validator::make($input, $rules, $messages);
 							
-        if ($validation->fails())
-        {
+        if ($validation->fails()) {
             //Validation has failed.
             return Redirect::back()->withErrors($validation->messages())->withInput();
         }        
-        else
-        {
-            foreach($input as $key=>$value)
-            {               
+        else {
+            foreach($input as $key=>$value) {
                 $Doctormodel->$key = $value;
             }        
             $Doctormodel->save();          
@@ -156,8 +154,7 @@ class DoctorsController extends BaseController {
 	 * @param  int  $id
 	 * @return Response
 	 */
-	public function edit()
-	{
+	public function edit() {
             $user = Sentry::getUser(); 
             if(isset($user->id))
             $userid=$user->id; 
@@ -167,21 +164,10 @@ class DoctorsController extends BaseController {
             }
             
             $doctorinfoarr=Doctor::where('user_id', $userid)->get();
-            $doctorinfo=$doctorinfoarr[0];             
-            return View::make('doctors.profile')                  
-                ->with("user_id",$userid)           
-                ->with("id",isset($doctorinfo->id)?$doctorinfo->id:"")           
-                ->with("name",isset($doctorinfo->name)?$doctorinfo->name:"")
-                ->with("speciality",isset($doctorinfo->speciality)?$doctorinfo->speciality:"")
-                ->with("street_address",isset($doctorinfo->street_address)?$doctorinfo->street_address:"")
-                ->with("cityid",isset($doctorinfo->cityid)?$doctorinfo->cityid:"")
-                ->with("postcode",isset($doctorinfo->postcode)?$doctorinfo->postcode:"")
-                ->with("provinceid",isset($doctorinfo->provinceid)?$doctorinfo->provinceid:"")
-                ->with("country",isset($doctorinfo->country)?$doctorinfo->country:"")
-                ->with("phone",isset($doctorinfo->phone)?$doctorinfo->phone:"")
-                ->with("email",isset($doctorinfo->email)?$doctorinfo->email:"")
-                ->with("license_number",isset($doctorinfo->license_number)?$doctorinfo->license_number:"")
-                ->with("route","doctorprofileupdate");
+            $doctorinfo=$doctorinfoarr[0];      
+            return View::make('doctors.profileedit')
+                    ->with("doctor",$doctorinfo);
+            
 	}
 
 
@@ -191,8 +177,7 @@ class DoctorsController extends BaseController {
 	 * @param  int  $id
 	 * @return Response
 	 */
-	public function update()
-	{
+	public function update() {
 	//
         $Doctormodel = new Doctor();     
         $input = Input::get();            
@@ -225,14 +210,12 @@ class DoctorsController extends BaseController {
         );
         $validation = Validator::make($input, $rules, $messages);
 							
-        if ($validation->fails())
-        {
+        if ($validation->fails()) {
             //Validation has failed.
             return Redirect::back()->withErrors($validation->messages())->withInput();
         }        
         else
         {
-            print_r($input);
             foreach($input as $key=>$value)
             {               
                 $Doctormodel->$key = $value;

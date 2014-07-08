@@ -49,6 +49,29 @@
             </li>
             <!--  this link should only be available to owners of the doctor profile -->
         </ul>
+        @if(Sentry::getUser())
+            {{ Form::model($userRatingOfDoc, array('route' => 'doctorRating.store')) }}
+            @foreach($ratableFields as $displayName => $dbName)
+                {{ $displayName }}<br>
+                <ul>
+                @for($i = 1; $i < 6; $i++)
+                    <li>{{ $i }}{{ Form::radio($dbName, $i) }}
+                @endfor
+                </ul>
+            @endforeach
+            {{ Form::close(); }}
+        @endif
+        <div>
+            Average Rating: {{ !empty($combinedAvgRating) ? $combinedAvgRating : "N\A" }}
+        </div>
+        <div>
+            Number of Ratings: {{ !empty($ratingCount) ? $ratingCount : "N\A" }}
+        </div>
+        <div>
+            @foreach($ratableFields as $displayName => $dbName)
+                {{ $displayName }}{{ !empty($ratingAvgsByField[$dbName]) ? $ratingAvgsByField[$dbName] : "N\A" }}
+            @endforeach
+        </div>
     </div>
 </div>
 

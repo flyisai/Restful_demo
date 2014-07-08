@@ -4,18 +4,11 @@
 <div data-role="page" id="home" data-theme="b">
 
     <div data-role="panel" id="doctor-panel" data-display="overlay">
-        <div class="ui-panel-inner">
-            <ul data-role="listview">
-                <li><a href="#" data-rel="close" class="ui-btn ui-icon-minus ui-btn-icon-right">Close</a></li>
-                <li><h1>Logo</h1></li>
-                <li><a href="{{URL::to('login')}}" class="ui-btn ui-icon-user ui-btn-icon-right">Login</a></li>
-                <li><a href="{{URL::to('register')}}" class="ui-btn ui-btn-icon-right">Register</a></li>
-            </ul>
-        </div>
+
     </div>
 
     <div data-role="header">
-        <a href="#doctor-panel" data-icon='bars' data-iconpos="notext" class="ui-corner-all ui-btn-left">Nav Panel</a>
+        <a href="#doctor-panel" data-icon='bars' class="ui-corner-all ui-btn-left">Nav Panel</a>
         <h1 class="align-center">Doctor List</h1>
     </div>
 
@@ -41,7 +34,8 @@
         {{ Form::submit('search', array('data-inline' => 'true','disabled'=>'disabled')) }}
         {{ Form::close() }}
         @foreach ($doctors as $doctor)
-        <a data-ajax="false" href="{{ URL::to('doctors', $doctor->id) }}">
+
+        <a data-ajax="false" href="{{ route('showDoctor', $doctor->id); }}">
             <div class="ui-btn ui-icon-carat-r ui-btn-icon-right ui-corner-all">
                 <img class="doctor-img-left" src="http://placekitten.com/g/200/300" width="100ox" height="150px" />
                 <div class="doctor-info">
@@ -63,6 +57,7 @@
             var submit = $('input[type="submit"]');
             if(this.value != '' || $('#select-speciality')[0].value != '') {
                 submit.button().button('enable');
+
             } else {
                 submit.button().button('disable');
             }

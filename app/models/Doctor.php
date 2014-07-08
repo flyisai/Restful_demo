@@ -1,16 +1,21 @@
 <?php namespace App\Models;
 
-class Doctor extends \Eloquent {
+class Doctor extends \Eloquent implements RatableEntity {
 	protected $fillable = [];
 
+    /**
+     * For generating dummy instances for tests via Factorymuff
+     * @return array
+     */
     public static function factory() {
         return array(
+            'user_id' => 'integer',
             'name' => 'string',
             'speciality' => 'string',
             'street_address' => 'string',
-            'city' => 'string',
+            'city_id' => 'integer',
             'postcode' => 'string',
-            'province' => 'string',
+            'province_id' => 'integer',
             'country' => 'string',
             'phone' => 'string',
             'email' => 'email',
@@ -29,4 +34,7 @@ class Doctor extends \Eloquent {
         return $this->hasMany('\App\Models\EducationRecord');
     }
 
+    public function ratings() {
+        return $this->hasMany('App\Models\DoctorRating');
+    }
 }

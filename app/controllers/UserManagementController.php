@@ -119,8 +119,7 @@ class UserManagementController extends \BaseController {
                         'email'    => Input::get('username'),
                         'password' => Input::get('password'),
                     );
-                    
-                 
+                                     
                     // Authenticate the user
                     $user = Sentry::authenticate($credentials, false);
                 } 
@@ -143,7 +142,12 @@ class UserManagementController extends \BaseController {
     public function manageUserProfile() {
         //
         $user = Sentry::getUser();
-        print_r($user->email);
-        return View::make('usermanagement.login');
+        
+        return View::make('usermanagement.manageuserprofile')->with("user",$user);
+    }
+
+    public function logout() {
+        Sentry::logout();
+        return Redirect::route('login');
     }
 }

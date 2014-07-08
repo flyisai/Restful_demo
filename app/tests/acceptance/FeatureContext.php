@@ -83,4 +83,22 @@ class FeatureContext extends MinkContext {
         $resetLink = 'resetpasswordconfirm/' . $user->reset_password_code;   
         $this->assertPageAddress($resetLink);
     }
+
+    /**
+     * Click on the element with the provided xpath query
+     *
+     * @Then /^I should see the element with css "([^"]*)"$/
+     */
+    public function iCanSeeTheElementWithCSSSelector($cssSelector)
+    {
+        $session = $this->getSession();
+        $element = $session->getPage()->find(
+            'xpath',
+            $session->getSelectorsHandler()->selectorToXpath('css', $cssSelector)
+        );
+        if (null === $element) {
+            throw new \InvalidArgumentException(sprintf('Could not evaluate CSS Selector: "%s"', $cssSelector));
+        }
+    }
+
 }

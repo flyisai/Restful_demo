@@ -23,7 +23,7 @@
             $.mobile.ajaxEnabled = false;
         });
     </script>
-	
+
 </head>
 <body>
 

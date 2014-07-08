@@ -124,6 +124,7 @@ return array(
         'Cartalyst\Sentry\SentryServiceProvider',
         'Way\Generators\GeneratorsServiceProvider',
         'Orangehill\Iseed\IseedServiceProvider',
+        'DrJujur\DrJujurServiceProvider'
 	),
 
 	/*

@@ -1,5 +1,6 @@
 <?php
-
+use \App\Models\Doctor;
+use \App\Models\EducationRecord;
 class EducationRecordsController extends BaseController {
 
     /*
@@ -19,49 +20,66 @@ class EducationRecordsController extends BaseController {
 
     public function create($id)
     {
-        $doctor = \App\Models\Doctor::find($id);
-        return View::make('education_records.create')-> with('doctor', $doctor);
+        $doctor = Doctor::find($id);
+        $user = Sentry::getUser();
+
+        if ($doctor->user_id == $user->id ) {
+            return View::make('education_records.create')-> with('doctor', $doctor);
+        } else {
+            return Redirect::route('searchDoctors');
+        }
     }
 
     public function store($id)
     {
-        $doctor = \App\Models\Doctor::find($id);
-        //TODO check if current_user and if current_user is owner/admin of a doctor
-        $rules = array(
-            'type'              => 'required',
-            'organization_name' => 'required'
-        );
-        $messages = array();
-        $validator = Validator::make(Input::all(), $rules, $messages);
-        if ($validator->fails()) {
-            return Redirect::route('educationRecord.create', $doctor->id)
-                ->withErrors($validator)
-                ->withInput();
+        $doctor = Doctor::find($id);
+        $user = Sentry::getUser();
+
+        if ($doctor->user_id == $user->id) {
+            $rules = array(
+                'type'              => 'required',
+                'organization_name' => 'required'
+            );
+            $messages = array();
+            $validator = Validator::make(Input::all(), $rules, $messages);
+            if ($validator->fails()) {
+                return Redirect::route('educationRecord.create', $doctor->id)
+                    ->withErrors($validator)
+                    ->withInput();
+            } else {
+                $educationRecord = EducationRecord::create(array(
+                    'type' => Input::get('type'),
+                    'doctor_id' => $doctor->id,
+                    'organization_name' => Input::get('organization_name'),
+                    'graduation_year' => Input::get('graduation_year')
+                ));
+
+
+                return Redirect::route('showDoctor', $doctor->id)-> with('doctor', $doctor);
+            }
         } else {
-            $educationRecord = \App\Models\EducationRecord::create(array(
-                'type' => Input::get('type'),
-                'doctor_id' => $doctor->id,
-                'organization_name' => Input::get('organization_name'),
-                'graduation_year' => Input::get('graduation_year')
-            ));
-
-
-            return Redirect::route('showDoctor', $doctor->id)-> with('doctor', $doctor);
+            return Redirect::route('searchDoctors');
         }
     }
 
     public function destroy($id, $education_record_id)
     {
-        $doctor = \App\Models\Doctor::find($id);
-        $educationRecord = \App\Models\EducationRecord::find($education_record_id);
-        $educationRecord->delete();
-        return Redirect::route('showDoctor', $doctor->id)-> with('doctor', $doctor);
+        $doctor = Doctor::find($id);
+        $user = Sentry::getUser();
+
+        if ($doctor->user_id == $user->id) {
+            $educationRecord = EducationRecord::find($education_record_id);
+            $educationRecord->delete();
+            return Redirect::route('showDoctor', $doctor->id)-> with('doctor', $doctor);
+        } else {
+            return Redirect::route('searchDoctors');
+        }
     }
 
     public function edit($id, $education_record_id)
     {
-        $doctor = \App\Models\Doctor::find($id);
-        $education = \App\Models\EducationRecord::find($education_record_id);
+        $doctor = Doctor::find($id);
+        $education = EducationRecord::find($education_record_id);
 
         return View::make('education_records.edit')-> with('doctor', $doctor)-> with('education', $education);
 
@@ -69,28 +87,35 @@ class EducationRecordsController extends BaseController {
 
     public function update($id, $education_record_id)
     {
-        $doctor = \App\Models\Doctor::find($id);
-        $education_record = \App\Models\EducationRecord::find($education_record_id);
+        $doctor = Doctor::find($id);
+        $user = Sentry::getUser();
 
-        $rules = array(
-            'type'              => 'required',
-            'organization_name' => 'required'
-        );
-        $messages = array();
-        $validator = Validator::make(Input::all(), $rules, $messages);
-        if ($validator->fails()) {
-            return Redirect::route('educationRecord.edit', array($doctor->id, $education_record->id))
-                ->withErrors($validator)
-                ->withInput();
+        if ($doctor->user_id == $user->id) {
+            $education_record = EducationRecord::find($education_record_id);
+
+            $rules = array(
+                'type'              => 'required',
+                'organization_name' => 'required'
+            );
+            $messages = array();
+            $validator = Validator::make(Input::all(), $rules, $messages);
+            if ($validator->fails()) {
+                return Redirect::route('educationRecord.edit', array($doctor->id, $education_record->id))
+                    ->withErrors($validator)
+                    ->withInput();
+            } else {
+                $educationRecord = $education_record->update(array(
+                    'type' => Input::get('type'),
+                    'doctor_id' => $doctor->id,
+                    'organization_name' => Input::get('organization_name'),
+                    'graduation_year' => Input::get('graduation_year')
+                ));
+
+
+                return Redirect::route('showDoctor', $doctor->id)-> with('doctor', $doctor);
+            }
         } else {
-            $educationRecord = $education_record->update(array(
-                'type' => Input::get('type'),
-                'doctor_id' => $doctor->id,
-                'organization_name' => Input::get('organization_name'),
-                'graduation_year' => Input::get('graduation_year')
-            ));
-
-            return Redirect::route('showDoctor', $doctor->id)-> with('doctor', $doctor);
+            return Redirect::route('searchDoctors');
         }
     }
 

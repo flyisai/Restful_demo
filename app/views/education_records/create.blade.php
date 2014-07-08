@@ -7,15 +7,12 @@
     </div>
 
     @if($errors->has())
-    <ul>
-        @foreach($errors->all() as $error)
-            <li class="error">{{ $error }}</li>
-        @endforeach
-    </ul>
+        <ul>
+            @foreach($errors->all() as $error)
+                <li class="error">{{ $error }}</li>
+            @endforeach
+        </ul>
     @endif
-
-
-
 
     <div data-role="content">
         {{ Form::open(array('route' => array('educationRecord.store', $doctor->id))) }}
@@ -29,9 +26,6 @@
             Organization: {{ Form::text('organization_name') }}<br>
             {{ Form::submit('Add') }}<br>
         {{ Form::close() }}
-        {{ link_to_route('resetPassword' , 'Forgot your password?') }}
     </div>
-
-
 </div>
 @stop

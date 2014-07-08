@@ -51,7 +51,7 @@ return array(
 			'host'      => 'localhost',
 			'database'  => 'dr_jujur',
 			'username'  => 'root',
-			'password'  => 'root',
+			'password'  => 'aquarius@sh',
 			'charset'   => 'utf8',
 			'collation' => 'utf8_unicode_ci',
 			'prefix'    => '',
