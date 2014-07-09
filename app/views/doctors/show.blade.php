@@ -50,15 +50,21 @@
             <!--  this link should only be available to owners of the doctor profile -->
         </ul>
         @if(Sentry::getUser())
-            {{ Form::model($userRatingOfDoc, array('route' => 'doctorRating.store')) }}
+            {{ Form::model($userRatingOfDoc,
+                array('route' => (isset($userRatingOfDoc->id) ? array('doctorRating.update', $doctor->id, $userRatingOfDoc->id) : array('doctorRating.store', $doctor->id)),
+                'method' => (isset($userRatingOfDoc->id) ? 'PUT' : 'POST'),
+                'class' => 'dummy_class',
+                'id' => 'doctor_rating_form'
+            )) }}
             @foreach($ratableFields as $displayName => $dbName)
                 {{ $displayName }}<br>
                 <ul>
                 @for($i = 1; $i < 6; $i++)
-                    <li>{{ $i }}{{ Form::radio($dbName, $i) }}
+                    <li>{{ $i }}{{ Form::radio($dbName, $i, null, array('id' => "{$dbName}_$i")) }}
                 @endfor
                 </ul>
             @endforeach
+                {{ Form::submit('Save rating', array('id' => 'doctor_rating_submit')) }}
             {{ Form::close(); }}
         @endif
         <div>
@@ -74,7 +80,6 @@
         </div>
     </div>
 </div>
-
 
 @stop
 

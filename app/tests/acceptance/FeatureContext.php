@@ -3,11 +3,15 @@
 use Behat\Behat\Context\ClosuredContextInterface,
     Behat\Behat\Context\TranslatedContextInterface,
     Behat\Behat\Context\BehatContext,
-    Behat\Behat\Exception\PendingException;
-use Behat\Gherkin\Node\PyStringNode,
-    Behat\Gherkin\Node\TableNode;
-use Behat\MinkExtension\Context\MinkContext;	
-use App\Models\User;
+    Behat\Behat\Exception\PendingException,
+    Behat\Gherkin\Node\PyStringNode,
+    Behat\Gherkin\Node\TableNode,
+    Behat\MinkExtension\Context\MinkContext,
+    Behat\Behat\Context\Step\Given,
+    Behat\Behat\Context\Step\When,
+    Behat\Behat\Context\Step\Then,
+    App\Models\User,
+    App\Models\DoctorRating;
 
 require_once 'src/Framework/Assert/Functions.php'; // PHPUnit assertions
 require_once __DIR__.'/../../../bootstrap/start.php';
@@ -89,8 +93,7 @@ class FeatureContext extends MinkContext {
      *
      * @Then /^I should see the element with css "([^"]*)"$/
      */
-    public function iCanSeeTheElementWithCSSSelector($cssSelector)
-    {
+    public function iCanSeeTheElementWithCSSSelector($cssSelector) {
         $session = $this->getSession();
         $element = $session->getPage()->find(
             'xpath',
@@ -101,4 +104,33 @@ class FeatureContext extends MinkContext {
         }
     }
 
+    /**
+     * @Then /^I should see a "([^"]*)" model with "([^"]*)" field equal to "([^"]*)" that has "([^"]*)" set to "([^"]*)" respectively$/
+     */
+    public function iShouldSeeAModelWithFieldEqualToThatHasSetToRespectively($modelName, $searchField, $searchVal, $fieldNames, $fieldValues) {
+        $fields = explode(", ", $fieldNames);
+        $values = explode(", ", $fieldValues);
+        $model = new DoctorRating();
+        $actual = $model::where($searchField, $searchVal)->first($fields)->toArray();
+        $expected = array_combine($fields, $values);
+        assertEquals($expected, $actual);
+    }
+
+    /**
+     * @Given /^I register and login as "([^"]*)" with password "([^"]*)"$/
+     */
+    public function iRegisterAndLoginAsWithPassword($username, $password) {
+        return array(
+            new Given('I go to "http://127.0.0.1/register"'),
+            new Then("I fill in \"email\" with \"{$username}\""),
+            new Then("I fill in \"password\" with \"{$password}\""),
+            new Then("I fill in \"password_again\" with \"{$password}\""),
+            new Then('I press "Register"'),
+            new Then('I go to "http://127.0.0.1/login"'),
+            new Then("I fill in \"username\" with \"{$username}\""),
+            new Then("I fill in \"password\" with \"{$password}\""),
+            new Then('I press "Login"'),
+            new Then("the response status code should be 200")
+        );
+    }
 }

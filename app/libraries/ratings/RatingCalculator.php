@@ -28,9 +28,9 @@ class RatingCalculator {
      * @return mixed averaged rating for all rating fields or null if doctor has no ratings
      */
     public function getCombinedAverage() {
-        $ratings = $this->ratableEntity->ratings()->get();
+        $ratings = $this->ratableEntity->ratings()->get()->toArray();
         if(isset($ratings[0])) {
-            $ratableFields = $ratings[0]->getRatableFields();
+            $ratableFields = $this->ratingModel->getRatableFields();
             $avgRatingPerUser = array();
             foreach ($ratings as &$rating) {
                 foreach ($rating as $field => $value) {
@@ -54,7 +54,7 @@ class RatingCalculator {
      */
     public function getAverageRatingByField() {
         $ratableFields = $this->ratingModel->getRatableFields();
-        $ratings = $this->ratableEntity->ratings()->get($ratableFields);
+        $ratings = $this->ratableEntity->ratings()->get($ratableFields)->toArray();
         $averages = array();
         foreach ($ratings as $rating) {
             foreach ($ratableFields as $field) {
@@ -67,7 +67,7 @@ class RatingCalculator {
             if (!isset($averages[$field])) {
                 $averages[$field] = null;
             } else {
-                $average = array_sum($average[$field])/count($average[$field]);
+                $average = array_sum($averages[$field])/count($averages[$field]);
                 $averages[$field] = (int) round($average, 0, PHP_ROUND_HALF_UP);
             }
         }

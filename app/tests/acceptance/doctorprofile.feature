@@ -14,7 +14,7 @@ Feature: login user
     And I fill in "password" with "123456"
     And I press "Login"
 
-    Given I go to "http://127.0.0.1/doctorprofile"
+    Given I go to "http://127.0.0.1/doctors/create"
     When I press "post1"
     Then the response status code should be 200
     And I should see "The [name] is required"
@@ -37,11 +37,11 @@ Feature: login user
     And I fill in "password" with "123456"
     And I press "Login"
     #to do
-    Given I go to "http://127.0.0.1/doctorprofile"
+    Given I go to "http://127.0.0.1/doctors/create"
     When I fill in "email" with "joe&&&@@123"
     And I press "post1"
     Then the response status code should be 200
-    And I should be on "http://127.0.0.1/doctorprofile"
+    And I should be on "http://127.0.0.1/doctors/create"
     And I should see "The email is incorrect email address."
 
   Scenario: User can register as doctor
@@ -55,7 +55,7 @@ Feature: login user
     And I fill in "password" with "123456"
     And I press "Login"
     #to do
-    Given I go to "http://127.0.0.1/doctorprofile"
+    Given I go to "http://127.0.0.1/doctors/create"
     When I fill in "name" with "George Washington"
     And  I fill in "speciality" with "the president of The US"
     And  I fill in "street_address" with "the white house"
@@ -71,7 +71,7 @@ Feature: login user
     Then the response status code should be 200
     And I should see a record with "name" that is "George Washington" in the "doctors" table in the database
     And I should see a record with "email" that is "GeorgeWashington@aquarius-asia.com" in the "doctors" table in the database
-    And I should be on "http://127.0.0.1/doctorprofileedit"
+    And I should be on "http://127.0.0.1/doctor/1/edit"
 
   Scenario: name and email  must be unique
     Given I go to "http://127.0.0.1/register"
@@ -84,12 +84,12 @@ Feature: login user
     And I fill in "password" with "123456"
     And I press "Login"
       #to do
-    Given I go to "http://127.0.0.1/doctorprofile"
+    Given I go to "http://127.0.0.1/doctors/create"
     When I fill in "name" with "Maggie Seaver"
     And  I fill in "email" with "maggie@mail.com"
     And  I press "post1"
     Then the response status code should be 200
-    And I should be on "http://127.0.0.1/doctorprofile"
+    And I should be on "http://127.0.0.1/doctors/create"
     And I should see "The name already exist in database"
     And I should see "The email already exist in database"
 
@@ -105,7 +105,7 @@ Feature: login user
     #And I press "Login"
     #to do
 
-    #Given I go to "http://127.0.0.1/doctorprofile"
+    #Given I go to "http://127.0.0.1/doctors/create"
     #When I fill in "name" with "George Washington"
     #And  I fill in "speciality" with "the president of The US"
     #And  I fill in "street_address" with "the white house"

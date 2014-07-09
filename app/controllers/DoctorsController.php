@@ -47,11 +47,12 @@ class DoctorsController extends BaseController {
 
 
     public function show($id) {
+
         $owner = false;
         $doctor = \App\Models\Doctor::find($id);
         $user = Sentry::getUser();
         if ($user) {
-            $userRatingOfDoc = $user->doctorRatings()->first();
+            $userRatingOfDoc = $user->doctorRatings()->where('doctor_id', $doctor->id)->first();
         };
         if (empty($userRatingOfDoc)) {
             $userRatingOfDoc = \App::make('\App\Models\DoctorRating');
@@ -87,20 +88,17 @@ class DoctorsController extends BaseController {
             ->with('userRatingOfDoc', $userRatingOfDoc)
             ->with('ratingCount', $ratingCalculator->getRatingCount())
             ->with('user', $owner);
+
     }
     
-    public function create() {
-        if (Request::getMethod() === "GET") {
-            $user = Sentry::getUser();
-            if(isset($user->id)) {
-                $userid=$user->id;
-            } else {
-                return Redirect::route('login');        
-            }
-            return View::make('doctors.profile')                  
-                ->with("user_id",$userid)
-                ->with("route","doctorstore");                          
-        }
+    public function create()
+    {
+        $user = Sentry::getUser();
+        $userid=$user->id;
+
+        return View::make('doctors.create')->with("user_id",$userid);
+
+        //Log::error('Something is really going wrong.');
     }
     /**
      * 
@@ -144,7 +142,7 @@ class DoctorsController extends BaseController {
                 $Doctormodel->$key = $value;
             }        
             $Doctormodel->save();          
-            return Redirect::route('doctorprofileedit');
+            return Redirect::route('doctor.edit',$Doctormodel->id);
         }
     }      
     
@@ -154,20 +152,11 @@ class DoctorsController extends BaseController {
 	 * @param  int  $id
 	 * @return Response
 	 */
-	public function edit() {
-            $user = Sentry::getUser(); 
-            if(isset($user->id))
-            $userid=$user->id; 
-            else 
-            {
-                return Redirect::route('login');        
-            }
-            
-            $doctorinfoarr=Doctor::where('user_id', $userid)->get();
-            $doctorinfo=$doctorinfoarr[0];      
-            return View::make('doctors.profileedit')
-                    ->with("doctor",$doctorinfo);
-            
+	public function edit($id)
+    {
+        $doctorinfo=Doctor::find($id);
+        return View::make('doctors.edit')
+               ->with("doctor",$doctorinfo);
 	}
 
 
@@ -177,18 +166,17 @@ class DoctorsController extends BaseController {
 	 * @param  int  $id
 	 * @return Response
 	 */
-	public function update() {
-	//
+	public function update($id)
+    {
         $Doctormodel = new Doctor();     
-        $input = Input::get();            
-        if($input['id'])
-            $Doctormodel = $Doctormodel::find($input['id']);
+        $input = Input::get();
+        if($id)
+            $Doctormodel = $Doctormodel::find($id);
         else
             return Redirect::route('login');
         
-        unset($input["_token"]);
-        unset($input["post1"]);
-                       
+        unset($input["_token"],$input["post1"],$input["_method"]);
+
         //VALIDATION CHECK                        
         $rules = array(
                 'name'  => 'required',
@@ -212,7 +200,9 @@ class DoctorsController extends BaseController {
 							
         if ($validation->fails()) {
             //Validation has failed.
-            return Redirect::back()->withErrors($validation->messages())->withInput();
+            return Redirect::back()
+                ->withErrors($validation
+                ->messages())->withInput();
         }        
         else
         {
@@ -221,7 +211,7 @@ class DoctorsController extends BaseController {
                 $Doctormodel->$key = $value;
             }        
             $Doctormodel->save();          
-            return Redirect::route('doctorprofileedit');
+            return Redirect::route('doctor.edit',$Doctormodel->id);
         }
 	}   
 //end class    

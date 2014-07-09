@@ -35,7 +35,7 @@
         {{ Form::close() }}
         @foreach ($doctors as $doctor)
 
-        <a data-ajax="false" href="{{ route('showDoctor', $doctor->id); }}">
+        <a data-ajax="false" href="{{ route('doctor.show', $doctor->id); }}">
             <div class="ui-btn ui-icon-carat-r ui-btn-icon-right ui-corner-all">
                 <img class="doctor-img-left" src="http://placekitten.com/g/200/300" width="100ox" height="150px" />
                 <div class="doctor-info">
