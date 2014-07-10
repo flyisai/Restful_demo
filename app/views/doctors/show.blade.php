@@ -4,7 +4,11 @@
     <div data-role="header">
         <a href="{{URL::to('doctors')}}" data-ajax="false" data-icon="home" class="ui-btn-left ui-corner-all">Home</a>
         <h1>{{  $doctor->name }}</h1>
-        <a href="{{URL::to('login')}}" data-ajax="false" data-icon='user' class="ui-btn-right ui-corner-all">login</a>
+        @if(!$pUser)
+            <a href="{{ URL::to('login') }}" class="ui-btn ui-btn-right ui-icon-user ui-btn-icon-left ui-corner-all">Login</a>
+        @else
+            <a href="{{ URL::to('myprofile') }}" class="ui-btn ui-btn-right ui-icon-user ui-btn-icon-left ui-corner-all">{{$pUser->email}}</a>
+        @endif
     </div>
     <div data-role="content" class="doctor-content ui-corner-all">
         <ul data-role="listview" data-theme="a" class="doctor-profile">
@@ -47,39 +51,42 @@
                     <p class="address wrap">{{ $educationRecord->type }} - {{ $educationRecord->organization_name }} - {{ $educationRecord->graduation_year }} {{ link_to_route('educationRecord.edit', "Edit", $parameters = array($doctor->id, $educationRecord->id ), array('class'=>'ui-btn ui-icon-edit ui-btn-inline ui-corner-all ui-mini ui-btn-icon-notext')); }}</p>
                 @endforeach
             </li>
-            <!--  this link should only be available to owners of the doctor profile -->
-        </ul>
-        @if(Sentry::getUser())
-            {{ Form::model($userRatingOfDoc,
+            <li>
+            @if(Sentry::getUser())
+                {{ Form::model($userRatingOfDoc,
                 array('route' => (isset($userRatingOfDoc->id) ? array('doctorRating.update', $doctor->id, $userRatingOfDoc->id) : array('doctorRating.store', $doctor->id)),
                 'method' => (isset($userRatingOfDoc->id) ? 'PUT' : 'POST'),
                 'class' => 'dummy_class',
                 'id' => 'doctor_rating_form'
-            )) }}
+                )) }}
             @foreach($ratableFields as $displayName => $dbName)
-                {{ $displayName }}<br>
-                <ul>
-                @for($i = 1; $i < 6; $i++)
-                    <li>{{ $i }}{{ Form::radio($dbName, $i, null, array('id' => "{$dbName}_$i")) }}
-                @endfor
-                </ul>
+                <label for="{{ $dbName }}">{{ $displayName }}</label>
+                <input type="range" name="{{ $dbName }}" id="{{ $dbName }}" min="0" max="5" step="1" value='{{ !empty($ratingAvgsByField[$dbName]) ? $ratingAvgsByField[$dbName] : "0" }}' data-track-theme="b" data-highlight="true" data-show-value="true" data-popup-enabled="true" />
             @endforeach
-                {{ Form::submit('Save rating', array('id' => 'doctor_rating_submit')) }}
-            {{ Form::close(); }}
-        @endif
-        <div>
-            Average Rating: {{ !empty($combinedAvgRating) ? $combinedAvgRating : "N\A" }}
-        </div>
-        <div>
-            Number of Ratings: {{ !empty($ratingCount) ? $ratingCount : "N\A" }}
-        </div>
-        <div>
-            @foreach($ratableFields as $displayName => $dbName)
-                {{ $displayName }}{{ !empty($ratingAvgsByField[$dbName]) ? $ratingAvgsByField[$dbName] : "N\A" }}
-            @endforeach
-        </div>
+                    {{ Form::submit('Save rating', array('id' => 'doctor_rating_submit')) }}
+                {{ Form::close(); }}
+            @else
+                <form class="full-width-slider">
+                    <label for="average">Average Rating</label>
+                    <input type="range" id="average" disabled min="0" max="5" step="1" value='{{ !empty($combinedAvgRating) ? $combinedAvgRating : "0" }}' data-track-theme="b" data-highlight="true" data-show-value="true" data-popup-enabled="true" />
+                    <label for="Number">Number of Ratings</label>
+                    <input type="range" id="Number" disabled min="0" max="5" step="1" value='{{ !empty($ratingCount) ? $ratingCount : "0" }}' data-track-theme="b" data-highlight="true" data-show-value="true" data-popup-enabled="true" />
+                    @foreach($ratableFields as $displayName => $dbName)
+                        <label for="{{ $displayName }}">{{ $displayName }}</label>
+                        <input type="range" id="{{ $displayName }}" disabled min="0" max="5" step="1" value='{{ !empty($ratingAvgsByField[$dbName]) ? $ratingAvgsByField[$dbName] : "0" }}' data-track-theme="b" data-highlight="true" data-show-value="true" data-popup-enabled="true" />
+                    @endforeach
+                </form>
+            @endif
+            </li>
+        </ul>
     </div>
 </div>
-
+<script>
+    $('#home').on('pagecreate',function(){
+        $('input[type="number"]').attr({type:'text'});
+    });
+    $(document).on('keyup','input[type="text"]',function(){
+        this.value = this.value.replace(/^[0-5]/g,'');
+    });
+</script>
 @stop
-

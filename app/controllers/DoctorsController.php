@@ -22,9 +22,11 @@ class DoctorsController extends BaseController {
             $doctorList = $doctors->getDoctors(Request::query());
             $specialities = $doctors->getAllSpecialities();
             $specialities[''] = '';
+            $user = Sentry::getUser();
             return View::make('doctors.searchdoctors')
                 ->with('specialities', $specialities)
-                ->with('doctors', $doctorList);
+                ->with('doctors', $doctorList)
+                ->with('user',$user);
         } elseif (Request::getMethod() === "POST") {
             $rules = array();
             $messages = array();
@@ -87,7 +89,8 @@ class DoctorsController extends BaseController {
             ->with('ratableFields', $ratableFields)
             ->with('userRatingOfDoc', $userRatingOfDoc)
             ->with('ratingCount', $ratingCalculator->getRatingCount())
-            ->with('user', $owner);
+            ->with('user', $owner)
+            ->with('pUser',$user);
 
     }
     
@@ -105,9 +108,9 @@ class DoctorsController extends BaseController {
      * @return type
      */
     public function store() {
-        $Doctormodel = new Doctor();     
-        $input = Input::get();                
-        
+        $Doctormodel = new Doctor();
+        $input = Input::get();
+
         unset($input["_token"]);
         unset($input["post1"]);
         unset($input["id"]);

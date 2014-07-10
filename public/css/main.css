@@ -48,3 +48,12 @@ table{border-collapse:collapse; border-spacing:0}
 .wrap {
     white-space : normal !important;
 }
+.full-width-slider input {
+     display: none;
+ }
+.full-width-slider .ui-slider-track {
+    margin-left: 15px;
+}
+.ui-state-disabled {
+    opacity: 1;
+}

@@ -3,12 +3,12 @@
 
 <div data-role="page" id="home" data-theme="b">
 
-    <div data-role="panel" id="doctor-panel" data-display="overlay">
-
-    </div>
-
     <div data-role="header">
-        <a href="#doctor-panel" data-icon='bars' class="ui-corner-all ui-btn-left">Nav Panel</a>
+        @if(!$user)
+            <a href="{{ URL::to('login') }}" class="ui-btn ui-btn-right ui-icon-user ui-btn-icon-left ui-corner-all">Login</a>
+        @else
+            <a href="{{ URL::to('myprofile') }}" class="ui-btn ui-btn-right ui-icon-user ui-btn-icon-left ui-corner-all">{{$user->email}}</a>
+        @endif
         <h1 class="align-center">Doctor List</h1>
     </div>
 
@@ -54,6 +54,7 @@
 <script>
     $(function(){
         $('input[name="name"]').keyup(function(){
+            console.log(this.value[0])
             var submit = $('input[type="submit"]');
             if(this.value != '' || $('#select-speciality')[0].value != '') {
                 submit.button().button('enable');
